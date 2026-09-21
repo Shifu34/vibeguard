@@ -63,14 +63,21 @@ Remove the secret, or allowlist the path in .vibeguard.toml
 
 | Rule | Severity | Example |
 |---|---|---|
-| AWS access / secret keys | high | `AKIAIOSFODNN7EXAMPLE` |
+| AWS access / secret / session keys | high/high/medium | `AKIAIOSFODNN7EXAMPLE` |
+| Azure storage keys, GCP service-account keys | high | `AccountKey=...`, `"type": "service_account"` |
 | Stripe live & restricted keys | high | `sk_live_...` |
+| Twilio, SendGrid, Mailgun keys | high | `SK...`, `SG...`, `key-...` |
 | GitHub tokens (PAT, OAuth, app) | high | `ghp_...`, `gho_...` |
-| Slack tokens | high | `xoxb-...` |
-| Google / OpenAI API keys | high/medium | `AIza...`, `sk-...` |
+| GitLab PATs, npm / PyPI tokens | high | `glpat-...`, `npm_...`, `pypi-...` |
+| Heroku, DigitalOcean, Cloudflare tokens | high/high/medium | `dop_v1_...` |
+| Slack tokens & webhooks | high | `xoxb-...` |
+| Discord bot tokens & webhooks | high | `discord.com/api/webhooks/...` |
+| OpenAI, Anthropic, Hugging Face, Google keys | high | `sk-...`, `sk-ant-...`, `hf_...`, `AIza...` |
 | Private key blocks | high | `-----BEGIN RSA PRIVATE KEY-----` |
 | DB connection strings with credentials | high | `postgres://admin:s3cret@...` |
 | High-entropy assignments | medium | `api_token = "a9F3kQ7z..."` (no known prefix needed) |
+
+31 rules total, plus a generic secret-assignment pattern for the long tail.
 
 Plus an **optional LLM review** that reads the actual diff and flags what regexes can't: SQL injection, auth bypass, insecure crypto, SSRF, path traversal. Enable it with:
 
@@ -122,6 +129,7 @@ vibeguard scan            # staged changes (what's about to commit)
 vibeguard scan --all      # every tracked file
 vibeguard scan --base origin/main   # diff against a branch (CI)
 vibeguard scan --format json        # machine-readable output
+vibeguard scan --format sarif       # SARIF 2.1.0 (e.g. for GitHub code scanning)
 ```
 
 ## Why not gitleaks / trufflehog?
@@ -135,8 +143,7 @@ Those are excellent secret scanners — VibeGuard happily stands on their should
 
 ## Roadmap
 
-- [ ] SARIF output for GitHub code scanning UI
-- [ ] More secret rules (npm, PyPI, Discord, Twilio...)
+- [ ] More secret rules (Twilio auth tokens, Vault tokens, ...)
 - [ ] `.env` and config-file aware scanning
 - [ ] VS Code / JetBrains extensions
 - [ ] `vibeguard --fix`: auto-move secrets to env vars
