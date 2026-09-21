@@ -24,7 +24,7 @@ VibeGuard sits between your agent and your repo and says **no**.
 ## Quickstart
 
 ```bash
-pip install vibeguard
+pip install vibeguard-secrets
 vibeguard init        # writes .vibeguard.toml
 ```
 

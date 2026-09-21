@@ -3,6 +3,22 @@
 All notable changes to VibeGuard are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.1] — 2026-09-21
+
+### Added
+- Terminal demo GIF (`docs/demo.gif`) showing VibeGuard catching a hardcoded
+  Stripe key, now embedded in the README.
+
+### Fixed
+- `fail-on` input of the GitHub Action was defined but silently ignored;
+  it now forwards to the scan. New `--fail-on {high,medium}` CLI flag
+  overrides the `fail_on` config value.
+
+### Changed
+- PyPI distribution renamed to `vibeguard-secrets` (`pip install
+  vibeguard-secrets`); the `vibeguard` name was already taken. The `vibeguard`
+  command and Python package name are unchanged.
+
 ## [0.1.0] — 2026-09-21
 
 First public release.
