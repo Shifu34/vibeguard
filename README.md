@@ -77,7 +77,7 @@ Remove the secret, or allowlist the path in .vibeguard.toml
 | DB connection strings with credentials | high | `postgres://admin:s3cret@...` |
 | High-entropy assignments | medium | `api_token = "a9F3kQ7z..."` (no known prefix needed) |
 
-31 rules total, plus a generic secret-assignment pattern for the long tail.
+32 rules total, plus a generic secret-assignment pattern for the long tail.
 
 Plus an **optional LLM review** that reads the actual diff and flags what regexes can't: SQL injection, auth bypass, insecure crypto, SSRF, path traversal. Enable it with:
 

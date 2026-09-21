@@ -8,7 +8,7 @@ All notable changes to VibeGuard are documented here. The format follows
 First public release.
 
 ### Added
-- Secret scanner with 31 detection rules: AWS (access key, secret key,
+- Secret scanner with 32 detection rules: AWS (access key, secret key,
   session token), Azure storage keys, GCP service-account hints, Stripe
   (live + restricted), Twilio, SendGrid, Mailgun, GitHub tokens (classic,
   fine-grained, OAuth, app), GitLab PATs, npm + PyPI tokens, Heroku,
