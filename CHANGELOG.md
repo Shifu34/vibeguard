@@ -3,6 +3,16 @@
 All notable changes to VibeGuard are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.2] — 2026-09-21
+
+### Fixed
+- `__version__` string now matches the package version.
+- GitHub Action renamed to "VibeGuard Secret Scanner" for Marketplace
+  uniqueness.
+
+### Added
+- PyPI version badge in the README.
+
 ## [0.1.1] — 2026-09-21
 
 ### Added
