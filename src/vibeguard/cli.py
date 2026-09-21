@@ -178,7 +178,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
     else:
         _print_text(findings)
 
-    threshold = _SEVERITY_ORDER.get(config.fail_on, 1)
+    threshold = _SEVERITY_ORDER.get(args.fail_on or config.fail_on, 1)
     failed = any(_SEVERITY_ORDER.get(f.severity, 0) >= threshold for f in findings)
     return 1 if failed else 0
 
@@ -220,6 +220,8 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("--config", metavar="PATH", help="Path to .vibeguard.toml")
     scan.add_argument("--llm", action="store_true", help="Enable LLM diff review.")
     scan.add_argument("--no-llm", action="store_true", help="Disable LLM diff review.")
+    scan.add_argument("--fail-on", choices=["high", "medium"], default=None,
+                      help="Minimum severity that fails the check (overrides config).")
     scan.add_argument("paths", nargs="*", help="Limit the staged scan to these paths.")
 
     sub.add_parser("init", help="Write an example .vibeguard.toml and show pre-commit setup.")

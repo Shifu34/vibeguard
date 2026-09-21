@@ -100,3 +100,30 @@ def test_version_flag(capsys):
         main(["--version"])
     assert exc.value.code == 0
     assert __version__ in capsys.readouterr().out
+
+
+def test_fail_on_flag_overrides_config(tmp_path, monkeypatch):
+    """--fail-on medium fails on medium findings; --fail-on high does not."""
+    import argparse
+    from vibeguard.cli import cmd_scan
+    from vibeguard.scanners.secrets import Finding
+    # Simulate args with a medium-only finding
+    args = argparse.Namespace(
+        config=None, all=True, base=None, paths=[],
+        format="text", llm=False, no_llm=True, fail_on="high",
+    )
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".vibeguard.toml").write_text('fail_on = "medium"\n')
+    import vibeguard.cli as cli_mod
+    monkeypatch.setattr(cli_mod, "_collect", lambda *a, **k: ("", [
+        Finding(file="a.py", line=1, rule="x", severity="medium",
+                snippet="", description=""),
+    ]))
+    # --fail-on high overrides config's medium -> exit 0
+    assert cmd_scan(args) == 0
+    # --fail-on medium -> exit 1
+    args.fail_on = "medium"
+    assert cmd_scan(args) == 1
+    # No flag -> falls back to config (medium) -> exit 1
+    args.fail_on = None
+    assert cmd_scan(args) == 1

@@ -39,7 +39,7 @@ runs:
         VIBEGUARD_API_KEY: ${{ inputs.api-key }}
       run: |
         if [ "${{ inputs.llm-review }}" = "true" ]; then LLM_FLAG="--llm"; else LLM_FLAG="--no-llm"; fi
-        vibeguard scan --all $LLM_FLAG
+        vibeguard scan --all $LLM_FLAG --fail-on "${{ inputs.fail-on }}"
 
     - name: Scan diff against base
       if: inputs.base != ''
@@ -48,7 +48,7 @@ runs:
         VIBEGUARD_API_KEY: ${{ inputs.api-key }}
       run: |
         if [ "${{ inputs.llm-review }}" = "true" ]; then LLM_FLAG="--llm"; else LLM_FLAG="--no-llm"; fi
-        vibeguard scan --base "${{ inputs.base }}" $LLM_FLAG
+        vibeguard scan --base "${{ inputs.base }}" $LLM_FLAG --fail-on "${{ inputs.fail-on }}"
 
 branding:
   icon: "shield"
