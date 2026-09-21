@@ -3,6 +3,15 @@
 All notable changes to VibeGuard are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.0] — 2026-09-21
+
+### Added
+- Baseline support: `vibeguard scan --update-baseline [PATH]` records current
+  findings; `vibeguard scan --baseline PATH` (or `baseline = "..."` in
+  `.vibeguard.toml`) suppresses known findings so CI only fails on new
+  secrets. Fingerprints exclude line numbers, so a known secret that moves
+  within a file stays suppressed.
+
 ## [0.1.2] — 2026-09-21
 
 ### Fixed

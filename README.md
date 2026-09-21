@@ -131,6 +131,26 @@ vibeguard scan --format json        # machine-readable output
 vibeguard scan --format sarif       # SARIF 2.1.0 (e.g. for GitHub code scanning)
 ```
 
+## Baselines
+
+Already triaged some findings and don't want CI to keep failing on them?
+Record a baseline — later scans only report **new** secrets:
+
+```bash
+vibeguard scan --all --update-baseline   # record current findings
+vibeguard scan --all --baseline .vibeguard-baseline.json  # only new findings fail
+```
+
+Or set it once in `.vibeguard.toml` and forget it:
+
+```toml
+baseline = ".vibeguard-baseline.json"
+```
+
+Fingerprints are based on the rule, file, and matched content (not line
+numbers), so a known secret that moves within a file stays suppressed.
+Commit the baseline file so the whole team and CI share it.
+
 ## Why not gitleaks / trufflehog?
 
 Those are excellent secret scanners — VibeGuard happily stands on their shoulders conceptually. The difference:

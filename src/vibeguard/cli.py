@@ -9,6 +9,12 @@ import subprocess
 import sys
 
 from . import __version__
+from .baseline import (
+    DEFAULT_BASELINE_PATH,
+    apply_baseline,
+    load_baseline,
+    save_baseline,
+)
 from .config import EXAMPLE_CONFIG, load_config
 from .reviewers.llm import review_diff
 from .scanners.secrets import Finding, scan_diff, scan_text
@@ -75,19 +81,21 @@ def _collect(target: str, base: str | None, paths: list[str]) -> tuple[str, list
     return diff, scan_diff(diff)
 
 
-def _print_text(findings: list[Finding]) -> None:
+def _print_text(findings: list[Finding], suppressed: int = 0) -> None:
     if not findings:
         print(f"{GREEN}✓ VibeGuard: no secrets found.{RESET}")
-        return
-    print(f"{BOLD}VibeGuard found {len(findings)} potential secret(s):{RESET}\n")
-    for f in sorted(findings, key=lambda x: (x.file, x.line)):
-        color = RED if f.severity == "high" else YELLOW
-        loc = f"{f.file}:{f.line}" if f.line else f.file or "(diff)"
-        print(f"  {color}{f.severity.upper():6}{RESET} {BOLD}{loc}{RESET}  {DIM}{f.rule}{RESET}")
-        print(f"         {f.description}")
-        if f.snippet:
-            print(f"         {DIM}{f.snippet[:140]}{RESET}")
-    print(f"\n{DIM}Remove the secret, or allowlist the path in .vibeguard.toml{RESET}")
+    else:
+        print(f"{BOLD}VibeGuard found {len(findings)} potential secret(s):{RESET}\n")
+        for f in sorted(findings, key=lambda x: (x.file, x.line)):
+            color = RED if f.severity == "high" else YELLOW
+            loc = f"{f.file}:{f.line}" if f.line else f.file or "(diff)"
+            print(f"  {color}{f.severity.upper():6}{RESET} {BOLD}{loc}{RESET}  {DIM}{f.rule}{RESET}")
+            print(f"         {f.description}")
+            if f.snippet:
+                print(f"         {DIM}{f.snippet[:140]}{RESET}")
+        print(f"\n{DIM}Remove the secret, or allowlist the path in .vibeguard.toml{RESET}")
+    if suppressed:
+        print(f"{DIM}{suppressed} finding(s) suppressed by baseline.{RESET}")
 
 
 def _sarif(findings: list[Finding]) -> dict:
@@ -148,6 +156,30 @@ def cmd_scan(args: argparse.Namespace) -> int:
 
     findings = [f for f in findings if not _is_allowed(f.file, config.allowlist)]
 
+    update_baseline = getattr(args, "update_baseline", None)
+    baseline_flag = getattr(args, "baseline", None)
+    if baseline_flag and update_baseline is not None:
+        print(f"{RED}error:{RESET} --baseline and --update-baseline "
+              f"are mutually exclusive", file=sys.stderr)
+        return 2
+
+    if update_baseline is not None:
+        # Bare flag -> config path, else the default filename.
+        update_path = update_baseline or config.baseline or DEFAULT_BASELINE_PATH
+        recorded = save_baseline(update_path, findings)
+        print(f"{GREEN}✓{RESET} recorded {recorded.count} finding(s) in {update_path}")
+        return 0
+
+    suppressed = 0
+    baseline_path = baseline_flag or config.baseline
+    if baseline_path:
+        try:
+            known = load_baseline(baseline_path)
+        except (FileNotFoundError, ValueError) as exc:
+            print(f"{RED}error:{RESET} {exc}", file=sys.stderr)
+            return 2
+        findings, suppressed = apply_baseline(findings, known)
+
     use_llm = args.llm or (config.llm.enabled and not args.no_llm)
     if use_llm and diff_text.strip():
         api_key = os.environ.get("VIBEGUARD_API_KEY", "")
@@ -176,7 +208,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
     elif args.format == "sarif":
         print(json.dumps(_sarif(findings), indent=2))
     else:
-        _print_text(findings)
+        _print_text(findings, suppressed)
 
     threshold = _SEVERITY_ORDER.get(args.fail_on or config.fail_on, 1)
     failed = any(_SEVERITY_ORDER.get(f.severity, 0) >= threshold for f in findings)
@@ -222,6 +254,14 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("--no-llm", action="store_true", help="Disable LLM diff review.")
     scan.add_argument("--fail-on", choices=["high", "medium"], default=None,
                       help="Minimum severity that fails the check (overrides config).")
+    scan.add_argument("--baseline", metavar="PATH",
+                      help="Suppress findings already recorded in a baseline file "
+                           "(overrides the 'baseline' config value).")
+    scan.add_argument("--update-baseline", metavar="PATH", nargs="?", const="",
+                      default=None,
+                      help="Record current findings as the baseline and exit. "
+                           "With no PATH, uses the 'baseline' config value or "
+                           f"{DEFAULT_BASELINE_PATH}.")
     scan.add_argument("paths", nargs="*", help="Limit the staged scan to these paths.")
 
     sub.add_parser("init", help="Write an example .vibeguard.toml and show pre-commit setup.")

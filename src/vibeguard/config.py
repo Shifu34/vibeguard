@@ -27,6 +27,11 @@ allowlist = [
   "test_*.py",
 ]
 
+# Baseline file: findings recorded here are suppressed on later scans,
+# so CI only fails on *new* secrets. Create it with:
+#   vibeguard scan --update-baseline
+# baseline = ".vibeguard-baseline.json"
+
 [llm]
 # Optional: have an LLM review the diff for security issues regexes miss
 # (injection flaws, auth bypass, insecure crypto, SSRF...).
@@ -49,6 +54,7 @@ class LlmConfig:
 class Config:
     allowlist: list[str] = field(default_factory=lambda: ["*.md", "docs/**", "tests/**", "test_*.py"])
     fail_on: str = "high"
+    baseline: str | None = None
     llm: LlmConfig = field(default_factory=LlmConfig)
 
 
@@ -63,6 +69,8 @@ def load_config(path: str | None = None) -> Config:
         cfg.allowlist = [str(p) for p in data["allowlist"]]
     if data.get("fail_on") in ("high", "medium"):
         cfg.fail_on = data["fail_on"]
+    if isinstance(data.get("baseline"), str) and data["baseline"].strip():
+        cfg.baseline = data["baseline"].strip()
     llm = data.get("llm", {})
     if isinstance(llm, dict):
         cfg.llm.enabled = bool(llm.get("enabled", False))
