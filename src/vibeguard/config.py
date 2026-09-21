@@ -1,9 +1,13 @@
-"""Configuration loading (.vibeguard.toml). Zero dependencies (stdlib tomllib)."""
+"""Configuration loading (.vibeguard.toml)."""
 from __future__ import annotations
 
 import os
-import tomllib
 from dataclasses import dataclass, field
+
+try:
+    import tomllib  # Python 3.11+
+except ModuleNotFoundError:  # Python 3.10: provided by the `tomli` dependency
+    import tomli as tomllib  # type: ignore[no-redef]
 
 CONFIG_FILENAME = ".vibeguard.toml"
 

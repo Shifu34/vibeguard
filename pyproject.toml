@@ -8,6 +8,9 @@ version = "0.1.0"
 description = "Stop AI-generated code from shipping secrets and security holes."
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    'tomli>=2.0; python_version < "3.11"',  # backport of stdlib tomllib
+]
 license = { text = "MIT" }
 authors = [{ name = "Mikey" }]
 keywords = ["security", "secrets", "pre-commit", "ai", "llm", "devtools"]

@@ -30,6 +30,15 @@ def _git(args: list[str]) -> str:
     return proc.stdout
 
 
+def _looks_binary(path: str, sample_size: int = 8192) -> bool:
+    """Null-byte sniff: treat files containing NUL bytes as binary and skip them."""
+    try:
+        with open(path, "rb") as fh:
+            return b"\x00" in fh.read(sample_size)
+    except OSError:
+        return True  # unreadable -> skip rather than crash
+
+
 def _is_allowed(path: str, allowlist: list[str]) -> bool:
     return any(
         fnmatch.fnmatch(path, pat) or fnmatch.fnmatch(os.path.basename(path), pat)
@@ -47,6 +56,8 @@ def _collect(target: str, base: str | None, paths: list[str]) -> tuple[str, list
         for rel in _git(["ls-files"]).splitlines():
             rel = rel.strip()
             if not rel:
+                continue
+            if _looks_binary(rel):
                 continue
             try:
                 with open(rel, "r", encoding="utf-8", errors="replace") as fh:
@@ -77,6 +88,48 @@ def _print_text(findings: list[Finding]) -> None:
         if f.snippet:
             print(f"         {DIM}{f.snippet[:140]}{RESET}")
     print(f"\n{DIM}Remove the secret, or allowlist the path in .vibeguard.toml{RESET}")
+
+
+def _sarif(findings: list[Finding]) -> dict:
+    """Build a SARIF 2.1.0 log from findings (e.g. for GitHub code scanning)."""
+    rules: dict[str, str] = {}
+    for f in findings:
+        rules.setdefault(f.rule, f.description)
+    sarif_rules = [
+        {"id": rule_id, "name": rule_id,
+         "shortDescription": {"text": description}}
+        for rule_id, description in sorted(rules.items())
+    ]
+    results = []
+    for f in sorted(findings, key=lambda x: (x.file, x.line)):
+        result: dict = {
+            "ruleId": f.rule,
+            "level": "error" if f.severity == "high" else "warning",
+            "message": {"text": f.description},
+        }
+        if f.file:
+            location = {"physicalLocation": {"artifactLocation": {"uri": f.file}}}
+            if f.line and f.line > 0:
+                location["physicalLocation"]["region"] = {"startLine": f.line}
+            result["locations"] = [location]
+        results.append(result)
+    return {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "VibeGuard",
+                        "version": __version__,
+                        "informationUri": "https://github.com/YOUR-USERNAME/vibeguard",
+                        "rules": sarif_rules,
+                    }
+                },
+                "results": results,
+            }
+        ],
+    }
 
 
 def cmd_scan(args: argparse.Namespace) -> int:
@@ -120,6 +173,8 @@ def cmd_scan(args: argparse.Namespace) -> int:
 
     if args.format == "json":
         print(json.dumps([f.__dict__ for f in findings], indent=2))
+    elif args.format == "sarif":
+        print(json.dumps(_sarif(findings), indent=2))
     else:
         _print_text(findings)
 
@@ -160,7 +215,8 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("--all", action="store_true", help="Scan all tracked files.")
     scan.add_argument("--base", metavar="REF",
                       help="Scan the diff against a git ref, e.g. origin/main (great for CI).")
-    scan.add_argument("--format", choices=["text", "json"], default="text")
+    scan.add_argument("--format", choices=["text", "json", "sarif"], default="text",
+                      help="Output format (sarif emits SARIF 2.1.0 for code scanning).")
     scan.add_argument("--config", metavar="PATH", help="Path to .vibeguard.toml")
     scan.add_argument("--llm", action="store_true", help="Enable LLM diff review.")
     scan.add_argument("--no-llm", action="store_true", help="Disable LLM diff review.")
