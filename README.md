@@ -9,8 +9,6 @@ VibeGuard is a pre-commit hook and GitHub Action that stops AI-generated code fr
 
 ![VibeGuard catching a leaked Stripe key](docs/demo.gif)
 
-> *Record a 20-second terminal GIF of VibeGuard catching a secret and drop it at `docs/demo.gif` — it's the single highest-ROI asset for launch day.*
-
 ---
 
 ## The problem
