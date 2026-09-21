@@ -1,0 +1,7 @@
+- id: vibeguard
+  name: VibeGuard secret & AI-code scan
+  description: Block secrets and AI-generated security holes before they are committed.
+  entry: vibeguard scan --staged
+  language: python
+  pass_filenames: false
+  always_run: true

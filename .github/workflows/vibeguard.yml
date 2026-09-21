@@ -1,0 +1,19 @@
+name: VibeGuard
+
+on:
+  pull_request:
+
+jobs:
+  vibeguard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan PR diff for secrets
+        uses: ./
+        with:
+          base: origin/${{ github.base_ref }}
+          # llm-review: "true"          # optional: enable with an API key
+          # api-key: ${{ secrets.VIBEGUARD_API_KEY }}

@@ -1,0 +1,55 @@
+name: "VibeGuard"
+description: "Stop AI-generated code from shipping secrets and security holes."
+author: "Mikey"
+
+inputs:
+  base:
+    description: "Git ref to diff against (e.g. origin/main). Scans the working tree when empty."
+    required: false
+    default: ""
+  fail-on:
+    description: 'Minimum severity that fails the check ("high" or "medium").'
+    required: false
+    default: "high"
+  llm-review:
+    description: 'Set to "true" to enable the LLM diff review.'
+    required: false
+    default: "false"
+  api-key:
+    description: "API key for the LLM review (VIBEGUARD_API_KEY). Any OpenAI-compatible endpoint."
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install VibeGuard
+      shell: bash
+      run: pip install "${{ github.action_path }}"
+
+    - name: Scan working tree
+      if: inputs.base == ''
+      shell: bash
+      env:
+        VIBEGUARD_API_KEY: ${{ inputs.api-key }}
+      run: |
+        if [ "${{ inputs.llm-review }}" = "true" ]; then LLM_FLAG="--llm"; else LLM_FLAG="--no-llm"; fi
+        vibeguard scan --all $LLM_FLAG
+
+    - name: Scan diff against base
+      if: inputs.base != ''
+      shell: bash
+      env:
+        VIBEGUARD_API_KEY: ${{ inputs.api-key }}
+      run: |
+        if [ "${{ inputs.llm-review }}" = "true" ]; then LLM_FLAG="--llm"; else LLM_FLAG="--no-llm"; fi
+        vibeguard scan --base "${{ inputs.base }}" $LLM_FLAG
+
+branding:
+  icon: "shield"
+  color: "green"
