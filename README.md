@@ -34,7 +34,7 @@ Add to your pre-commit config:
 
 ```yaml
 repos:
-  - repo: https://github.com/YOUR-USERNAME/vibeguard
+  - repo: https://github.com/Shifu34/vibeguard
     rev: v0.1.0
     hooks:
       - id: vibeguard
@@ -96,7 +96,7 @@ export VIBEGUARD_API_KEY="..."
 Scan every PR diff automatically:
 
 ```yaml
-- uses: YOUR-USERNAME/vibeguard@v0.1.0
+- uses: Shifu34/vibeguard@v0.1.0
   with:
     base: origin/${{ github.base_ref }}
     # llm-review: "true"

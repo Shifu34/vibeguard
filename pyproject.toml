@@ -27,8 +27,8 @@ classifiers = [
 vibeguard = "vibeguard.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/YOUR-USERNAME/vibeguard"
-Issues = "https://github.com/YOUR-USERNAME/vibeguard/issues"
+Homepage = "https://github.com/Shifu34/vibeguard"
+Issues = "https://github.com/Shifu34/vibeguard/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

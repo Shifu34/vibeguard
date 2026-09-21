@@ -122,7 +122,7 @@ def _sarif(findings: list[Finding]) -> dict:
                     "driver": {
                         "name": "VibeGuard",
                         "version": __version__,
-                        "informationUri": "https://github.com/YOUR-USERNAME/vibeguard",
+                        "informationUri": "https://github.com/Shifu34/vibeguard",
                         "rules": sarif_rules,
                     }
                 },
@@ -193,7 +193,7 @@ def cmd_init(_args: argparse.Namespace) -> int:
     print("\nAdd VibeGuard to pre-commit (.pre-commit-config.yaml):\n")
     print("""\
 repos:
-  - repo: https://github.com/YOUR-USERNAME/vibeguard
+  - repo: https://github.com/Shifu34/vibeguard
     rev: v0.1.0
     hooks:
       - id: vibeguard

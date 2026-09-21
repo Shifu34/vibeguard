@@ -13,7 +13,7 @@ CONFIG_FILENAME = ".vibeguard.toml"
 
 EXAMPLE_CONFIG = """\
 # VibeGuard configuration — created by `vibeguard init`
-# Docs: https://github.com/YOUR-USERNAME/vibeguard#configuration
+# Docs: https://github.com/Shifu34/vibeguard#configuration
 
 # Fail (exit 1, block commit) on "high" or "medium"+ findings.
 fail_on = "high"

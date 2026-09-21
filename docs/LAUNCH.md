@@ -5,7 +5,7 @@ short window — so everything below is sequenced around a single launch day.
 
 ## Before launch
 
-- [ ] Replace every `YOUR-USERNAME` in the repo with your GitHub handle
+- [ ] Replace every `Shifu34` in the repo with your GitHub handle
       (README, pyproject.toml, action.yml, .pre-commit-hooks.yaml, config example).
 - [ ] Record `docs/demo.gif`: a 20-second terminal capture of VibeGuard
       blocking a commit that contains a fake Stripe key. Tools: `peek`,
