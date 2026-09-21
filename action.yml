@@ -1,4 +1,4 @@
-name: "VibeGuard"
+name: "VibeGuard Secret Scanner"
 description: "Stop AI-generated code from shipping secrets and security holes."
 author: "Mikey"
 
