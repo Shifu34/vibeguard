@@ -4,6 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
+[![PyPI version](https://img.shields.io/pypi/v/vibeguard-secrets.svg)](https://pypi.org/project/vibeguard-secrets/)
 
 VibeGuard is a pre-commit hook and GitHub Action that stops AI-generated code from shipping secrets, hardcoded API keys, and security holes — before they ever reach your repo.
 
