@@ -39,6 +39,10 @@ _RULES: list[tuple[str, str, str, str]] = [
     # --- Payments / comms ---
     ("stripe-live-key", "Stripe live secret key", "high", r"sk_live_[0-9a-zA-Z]{16,}"),
     ("stripe-restricted-key", "Stripe restricted key", "high", r"rk_live_[0-9a-zA-Z]{16,}"),
+    # "medium": Stripe test keys match an unambiguous format, but can only
+    # touch test data, so they stay medium per the lower-risk rule above.
+    ("stripe-test-key", "Stripe test secret key", "medium", r"sk_test_[0-9a-zA-Z]{16,}"),
+    ("shopify-access-token", "Shopify admin API access token", "high", r"shpat_[a-fA-F0-9]{32}"),
     ("twilio-api-key", "Twilio API key", "high", r"SK[0-9a-fA-F]{32}"),
     ("sendgrid-api-key", "SendGrid API key", "high",
      r"SG\.[A-Za-z0-9\-_]{22}\.[A-Za-z0-9\-_]{43}"),
@@ -50,14 +54,19 @@ _RULES: list[tuple[str, str, str, str]] = [
     ("github-app-token", "GitHub app installation token", "high", r"ghu_[A-Za-z0-9]{36}"),
     ("github-pat-finegrained", "GitHub fine-grained personal access token", "high",
      r"github_pat_[A-Za-z0-9_]{22,}"),
+    ("github-server-token", "GitHub server-to-server token", "high", r"ghs_[A-Za-z0-9]{36}"),
     ("gitlab-pat", "GitLab personal access token", "high", r"glpat-[A-Za-z0-9\-_]{20}"),
     ("npm-token", "npm access token", "high", r"npm_[A-Za-z0-9]{36}"),
+    ("npmrc-auth-token", "npm registry auth token", "high",
+     r"(?i)_authToken\s*=\s*[A-Za-z0-9\-_.]{20,}"),
     ("pypi-token", "PyPI API token", "high", r"pypi-[A-Za-z0-9\-_]{50,}"),
     ("heroku-api-key", "Heroku API key", "high",
      r"(?i)heroku(?:_api)?_key['\"]?\s*[:=]\s*['\"]?"
      r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"),
     ("digitalocean-token", "DigitalOcean personal access token", "high",
      r"dop_v1_[a-f0-9]{64}"),
+    ("sentry-auth-token", "Sentry auth token", "high", r"sntrys_[A-Za-z0-9_-]{64}"),
+    ("linear-api-key", "Linear API key", "high", r"lin_api_[a-zA-Z0-9]{40}"),
     ("cloudflare-api-token", "Cloudflare API token", "medium",
      r"(?i)cloudflare[\w-]{0,20}(?:api[_-]?)?token[\w-]{0,5}['\"]?\s*[:=]\s*['\"]?"
      r"[A-Za-z0-9\-_]{40}['\"]?"),
@@ -69,6 +78,8 @@ _RULES: list[tuple[str, str, str, str]] = [
      r"[MN][A-Za-z0-9]{23}\.[\w\-]{6}\.[\w\-]{27}"),
     ("discord-webhook", "Discord webhook URL", "high",
      r"https://discord(?:app)?\.com/api/webhooks/[0-9]+/[A-Za-z0-9_\-]+"),
+    ("telegram-bot-token", "Telegram bot token", "high",
+     r"\b[0-9]{8,10}:[A-Za-z0-9_-]{35}\b"),
     # --- AI providers ---
     ("openai-api-key", "OpenAI API key", "high", r"sk-[A-Za-z0-9]{48}"),
     ("openai-project-key", "OpenAI project/service-account key", "high",
@@ -80,6 +91,7 @@ _RULES: list[tuple[str, str, str, str]] = [
     # --- Generic / crypto material ---
     ("private-key", "Private key block", "high",
      r"-----BEGIN (?:RSA |OPENSSH |EC |DSA |ENCRYPTED |PGP )?PRIVATE KEY(?: BLOCK)?-----"),
+    ("putty-private-key", "PuTTY private key file", "high", r"PuTTY-User-Key-File-[23]:"),
     ("db-connection-string", "Database connection string with embedded credentials", "high",
      r"(?i)(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis)://[^/\s:]+:[^/\s@]+@"),
     ("generic-secret-assignment", "Hardcoded secret-like assignment", "medium",

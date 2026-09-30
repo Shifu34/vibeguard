@@ -3,6 +3,18 @@
 All notable changes to VibeGuard are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.0] — 2026-09-30
+
+### Added
+- SARIF 2.1.0 output is now validated against the official SARIF JSON schema
+  (`tests/test_sarif.py`; schema vendored in `tests/sarif-2.1.0.schema.json`),
+  so `vibeguard scan --sarif` uploads cleanly to GitHub code scanning.
+- 8 new detection rules (40 total): GitHub server-to-server tokens (`ghs_`),
+  Stripe test keys (`sk_test_`, medium severity since they only touch test
+  data), Telegram bot tokens, Shopify admin API tokens (`shpat_`), Sentry
+  auth tokens (`sntrys_`), npm registry auth tokens (`_authToken=` in `.npmrc`),
+  PuTTY private key files, Linear API keys (`lin_api_`).
+
 ## [0.2.0] — 2026-09-21
 
 ### Added

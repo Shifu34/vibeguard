@@ -153,3 +153,53 @@ def test_documentation_example_keys_not_flagged():
         'API_KEY = os.environ["STRIPE_KEY"]\n'
     )
     assert scan_text(code, "app.py") == []
+
+
+def test_github_server_token_detected():
+    # Assembled at runtime so the full ghs_ token never appears as a literal
+    # in this file (avoids tripping GitHub push protection).
+    findings = scan_text('GH_TOKEN="ghs_' + "a" * 36 + '"\n', "deploy.py")
+    assert _has_rule(findings, "github-server-token")
+
+
+def test_stripe_test_key_detected():
+    findings = scan_text('KEY="sk_test_' + "a" * 24 + '"\n', "billing.py")
+    assert _has_rule(findings, "stripe-test-key")
+
+
+def test_stripe_test_key_is_medium_severity():
+    findings = scan_text('KEY="sk_test_' + "a" * 24 + '"\n', "billing.py")
+    matched = [f for f in findings if f.rule == "stripe-test-key"]
+    assert matched and matched[0].severity == "medium"
+
+
+def test_telegram_bot_token_detected():
+    # Bot ID + colon + 35-char secret; assembled at runtime.
+    token = "123456789:" + "f4ke" * 8 + "f4k"
+    findings = scan_text(f'BOT="{token}"\n', "bot.py")
+    assert _has_rule(findings, "telegram-bot-token")
+
+
+def test_shopify_access_token_detected():
+    findings = scan_text('SHOPIFY="shpat_' + "a" * 32 + '"\n', "store.py")
+    assert _has_rule(findings, "shopify-access-token")
+
+
+def test_sentry_auth_token_detected():
+    findings = scan_text('SENTRY="sntrys_' + "a" * 64 + '"\n', "errors.py")
+    assert _has_rule(findings, "sentry-auth-token")
+
+
+def test_npmrc_auth_token_detected():
+    findings = scan_text("//registry.npmjs.org/:_authToken=npm_" + "a" * 36 + "\n", ".npmrc")
+    assert _has_rule(findings, "npmrc-auth-token")
+
+
+def test_putty_private_key_detected():
+    findings = scan_text("PuTTY-User-Key-File-2: ssh-rsa\nEncryption: none\n", "key.ppk")
+    assert _has_rule(findings, "putty-private-key")
+
+
+def test_linear_api_key_detected():
+    findings = scan_text('LINEAR="lin_api_' + "a" * 40 + '"\n', "issues.py")
+    assert _has_rule(findings, "linear-api-key")

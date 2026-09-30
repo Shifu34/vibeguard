@@ -64,19 +64,22 @@ Remove the secret, or allowlist the path in .vibeguard.toml
 |---|---|---|
 | AWS access / secret / session keys | high/high/medium | `AKIAIOSFODNN7EXAMPLE` |
 | Azure storage keys, GCP service-account keys | high | `AccountKey=...`, `"type": "service_account"` |
-| Stripe live & restricted keys | high | `sk_live_...` |
+| Stripe live, restricted & test keys | high/high/medium | `sk_live_...`, `sk_test_...` |
+| Shopify admin API tokens | high | `shpat_...` |
 | Twilio, SendGrid, Mailgun keys | high | `SK...`, `SG...`, `key-...` |
-| GitHub tokens (PAT, OAuth, app) | high | `ghp_...`, `gho_...` |
-| GitLab PATs, npm / PyPI tokens | high | `glpat-...`, `npm_...`, `pypi-...` |
+| GitHub tokens (classic, fine-grained, OAuth, app, server) | high | `ghp_...`, `gho_...`, `ghs_...` |
+| GitLab PATs, npm / PyPI tokens, npmrc auth tokens | high | `glpat-...`, `npm_...`, `_authToken=...` |
 | Heroku, DigitalOcean, Cloudflare tokens | high/high/medium | `dop_v1_...` |
 | Slack tokens & webhooks | high | `xoxb-...` |
 | Discord bot tokens & webhooks | high | `discord.com/api/webhooks/...` |
+| Telegram bot tokens | high | `<bot-id>:<35-char token>` |
+| Sentry auth tokens, Linear API keys | high | `sntrys_...`, `lin_api_...` |
 | OpenAI, Anthropic, Hugging Face, Google keys | high | `sk-...`, `sk-ant-...`, `hf_...`, `AIza...` |
-| Private key blocks | high | `-----BEGIN RSA PRIVATE KEY-----` |
+| Private key blocks & PuTTY key files | high | `-----BEGIN RSA PRIVATE KEY-----`, `PuTTY-User-Key-File-2:` |
 | DB connection strings with credentials | high | `postgres://admin:s3cret@...` |
 | High-entropy assignments | medium | `api_token = "a9F3kQ7z..."` (no known prefix needed) |
 
-32 rules total, plus a generic secret-assignment pattern for the long tail.
+40 rules total, plus a generic secret-assignment pattern for the long tail.
 
 Plus an **optional LLM review** that reads the actual diff and flags what regexes can't: SQL injection, auth bypass, insecure crypto, SSRF, path traversal. Enable it with:
 
